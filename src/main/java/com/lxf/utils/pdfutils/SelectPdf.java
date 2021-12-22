@@ -1,4 +1,4 @@
-package com.lxf.pdfuntil;
+package com.lxf.utils.pdfutils;
 
 import com.itextpdf.awt.geom.Rectangle2D.Float;
 import com.itextpdf.text.pdf.PdfDictionary;
@@ -21,7 +21,8 @@ public class SelectPdf {
     public static void main(String[] args) throws IOException {
         String inputPath = "D:/LXF/PdfTest/";
         String inputFileName = "pdf_Demo.pdf";
-        String inputPath_fileName = inputPath + inputFileName;
+//        String inputPath_fileName = inputPath + inputFileName;
+        String inputPath_fileName = "D:/LXF/PdfTest/pdf_Demo.pdf";
         String keyword = "党";
         //状态码： 合格:200 不合格:403
         int stateCode = isPass(inputPath_fileName, keyword);
@@ -32,13 +33,13 @@ public class SelectPdf {
         if (!"".equals(path) && !"".equals(keyword)) {
             if (getKeyword(path, keyword)) {
                 System.out.println("successfully pass!");
-                return 200;
+                return 0;
             } else {
                 System.out.println("invalid characters exist!");
-                return 403;
+                return 1;
             }
         }
-        return 403;
+        return 1;
     }
 
     public static boolean getKeyword(String path, String keyword) throws IOException {
