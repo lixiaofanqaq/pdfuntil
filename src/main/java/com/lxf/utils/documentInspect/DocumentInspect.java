@@ -1,11 +1,12 @@
 package com.lxf.utils.documentInspect;
 
-import com.lxf.utils.docutils.Read_Docx_Doc_Wps;
+import com.lxf.utils.docutils.Read_docx_doc_wps;
 import com.lxf.utils.docutils.Read_ppt_pptx_dps;
 import com.lxf.utils.docutils.Read_xls_xlsx_et;
 import com.lxf.domain.ResultDomain;
 import com.lxf.utils.docutils.ReadPdf;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,12 +17,14 @@ public class DocumentInspect {
 
     private static final int RIGHTFUL_CODE = 200; //合格
     private static final int ILLEGAL_CODE = 403;  //不合格
-    private static final int NO_SUPPORT_CODE = 0; //文件格式不支持
+
+    private static final String UN_TRUE_MSG = "文件未通过真实性检测";
+    private static final String NO_EXISTS_MSG = "文件不存在";
+    private static final String NO_SUPPORT_MSG = "文件格式不支持";
 
     private static final String RIGHTFUL_MSG = "文件检测合格";
-    private static final String ILLEGAL_MSG = "文件中包含关键字!";
-    private static final String UN_TRUE_MSG = "文件未通过真实性检测";
-    private static final String NONE_MSG = "文件未被检测,请检查文件格式是否支持";
+    private static final String ILLEGAL_MSG = "文件中包含关键字,检测不合格";
+
 
     public static void main(String[] args) throws IOException {
         List<String> keyWordList = new ArrayList<String>();
@@ -41,57 +44,71 @@ public class DocumentInspect {
      */
     public static ResultDomain documentInspect(List<String> keyWordList) throws IOException {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
-        ResultDomain resultDomain = new ResultDomain(NO_SUPPORT_CODE, NONE_MSG);
-//        String filePath = "D:\\LXF\\Test\\测试112.et";
+        ResultDomain resultDomain = new ResultDomain(ILLEGAL_CODE, NO_SUPPORT_MSG);
+        String filePath = "D:\\LXF\\Test\\测试112.et";
 //        String filePath = "D:\\LXF\\Test\\111.ppt";
 //        String filePath = "D:\\LXF\\Test\\111.pptx";
-//        String filePath = "D:\\LXF\\Test\\111.pptx";
-        String filePath = "D:\\LXF\\Test\\wpstest.wps";
+//        String filePath = "D:\\LXF\\Test\\111.dps";
+//        String filePath = "D:\\LXF\\Test\\wpstest.wps";
 //        String filePath = "D:\\LXF\\Test\\pdf_Demo.pdf";
+//        String filePath = "D:\\LXF\\Test\\222.pptx";
+//        String filePath = "D:\\LXF\\Test\\111.docx";
+//        String filePath = "D:\\LXF\\Test\\111.txt";
+//        String filePath = "D:\\LXF\\Test\\doctest.doc";
+//        String filePath = "D:\\LXF\\Test\\测试111.wps";
 
         System.out.println("****************************文件检测开始****************************");
-        // 先检测文件的真实性
-        if (FileTypeInspect.isPass(filePath)) {
-            // 用来统计关键字数量
-            int keyCount = 0;
-            // 根据后缀名判断文件格式
-            String fileName = FileTypeInspect.getFileName(filePath);
-            String fileType = FileTypeInspect.getFileSuffix(fileName);
-            System.out.println("文件格式为==>" + fileType);
-            // 如果文件格式为以下类型 支持进行检测
-            switch (fileType) {
-                case "pdf":
-                    isPdf(filePath, keyWordList, keyCount, resultDomain);
-                    break;
-                case "doc":
-                    isDoc(filePath, keyWordList, keyCount, resultDomain);
-                    break;
-                case "wps":
-                    isWps(filePath, keyWordList, keyCount, resultDomain);
-                    break;
-                case "docx":
-                    isDocx(filePath, keyWordList, keyCount, resultDomain);
-                    break;
-                case "xls":
-                case "et":
-                case "xlsx":
-                    is_xls_xlsx_et(filePath, keyWordList, keyCount, resultDomain);
-                    break;
-                case "ppt":
-                    isPpt(filePath, keyWordList, keyCount, resultDomain);
-                    break;
-                case "dps":
-                    isDps(filePath, keyWordList, keyCount, resultDomain);
-                case "pptx":
-                    isPptx(filePath, keyWordList, keyCount, resultDomain);
-                    break;
-                default:
-                    System.out.println(NONE_MSG);
-                    break;
+        //1.先检测文件是否存在
+        File f = new File(filePath);
+        if (f.exists() && f.isFile()) {
+            // 2. 再检测文件的真实性
+            if (FileTypeInspect.isPass(filePath)) {
+                // 用来统计关键字数量
+                int keyCount = 0;
+                // 根据后缀名判断文件格式
+                String fileName = FileTypeInspect.getFileName(filePath);
+                String fileType = FileTypeInspect.getFileSuffix(fileName);
+                System.out.println("文件格式为==>" + fileType);
+                // 3.如果文件格式为以下类型 支持进行检测
+                switch (fileType) {
+                    case "pdf":
+                        isPdf(filePath, keyWordList, keyCount, resultDomain);
+                        break;
+                    case "doc":
+                        isDoc(filePath, keyWordList, keyCount, resultDomain);
+                        break;
+                    case "wps":
+                        isWps(filePath, keyWordList, keyCount, resultDomain);
+                        break;
+                    case "docx":
+                        isDocx(filePath, keyWordList, keyCount, resultDomain);
+                        break;
+                    case "xls":
+                    case "et":
+                    case "xlsx":
+                        is_xls_xlsx_et(filePath, keyWordList, keyCount, resultDomain);
+                        break;
+                    case "ppt":
+                        isPpt(filePath, keyWordList, keyCount, resultDomain);
+                        break;
+                    case "dps":
+                        isDps(filePath, keyWordList, keyCount, resultDomain);
+                    case "pptx":
+                        isPptx(filePath, keyWordList, keyCount, resultDomain);
+                        break;
+                    default:
+                        resultDomain.setCode(ILLEGAL_CODE);
+                        resultDomain.setMsg(NO_SUPPORT_MSG);
+                        // System.out.println(NONE_MSG);
+                        break;
+                }
+            } else {
+                resultDomain.setCode(ILLEGAL_CODE);
+                resultDomain.setMsg(UN_TRUE_MSG);
             }
         } else {
             resultDomain.setCode(ILLEGAL_CODE);
-            resultDomain.setMsg(UN_TRUE_MSG);
+            resultDomain.setMsg(NO_EXISTS_MSG);
         }
         System.out.println("检测时间:" + df.format(new Date()));
         System.out.println("****************************文件检测结束****************************");
@@ -108,7 +125,7 @@ public class DocumentInspect {
      * @throws IOException IO异常
      */
     public static void isDoc(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) throws IOException {
-        String docStr = Read_Docx_Doc_Wps.getDocStr(filePath);
+        String docStr = Read_docx_doc_wps.getDocStr(filePath);
         String msg = FileTypeInspect.getFileName(filePath) + " 内容为空";
         isXxx(filePath, keyWordList, keyCount, resultDomain, docStr, msg);
     }
@@ -123,7 +140,7 @@ public class DocumentInspect {
      * @throws IOException IO异常
      */
     public static void isDocx(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) throws IOException {
-        String docxStr = Read_Docx_Doc_Wps.getDocxStr(filePath);
+        String docxStr = Read_docx_doc_wps.getDocxStr(filePath);
         String msg = FileTypeInspect.getFileName(filePath) + " 内容为空";
         isXxx(filePath, keyWordList, keyCount, resultDomain, docxStr, msg);
 
@@ -183,7 +200,7 @@ public class DocumentInspect {
      * @throws IOException IO异常
      */
     public static void isWps(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) throws IOException {
-        String wps_Str = Read_Docx_Doc_Wps.getWpsStr(filePath);
+        String wps_Str = Read_docx_doc_wps.getWpsStr(filePath);
         String msg = FileTypeInspect.getFileName(filePath) + " 内容为空";
         isXxx(filePath, keyWordList, keyCount, resultDomain, wps_Str, msg);
     }
@@ -219,7 +236,7 @@ public class DocumentInspect {
     }
 
     /**
-     * 检测通用代码  复用
+     * 文件检测通用代码  复用
      *
      * @param filePath     文件路径
      * @param keyWordList  关键字集合
@@ -237,7 +254,7 @@ public class DocumentInspect {
     }
 
     /**
-     * 检测通用代码  复用
+     * 关键字检测通用代码  复用
      *
      * @param keyWordList  关键字集合
      * @param keyCount     关键字数量 >1 即文件不合格
@@ -252,6 +269,8 @@ public class DocumentInspect {
             }
         }
         if (keyCount == 0) {
+            System.out.println(RIGHTFUL_MSG);
+
             resultDomain.setCode(RIGHTFUL_CODE);
             resultDomain.setMsg(RIGHTFUL_MSG);
         } else {

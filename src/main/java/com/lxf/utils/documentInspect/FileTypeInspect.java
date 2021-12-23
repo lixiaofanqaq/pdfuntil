@@ -125,6 +125,7 @@ public class FileTypeInspect {
                     System.out.println("文件真实性检测==>" + (result ? "合格" : "不合格"));
                     break;
                 default:
+                    result = true;
                     System.out.println("当前文件格式不支持检测");
                     break;
             }
