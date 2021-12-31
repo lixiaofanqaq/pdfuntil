@@ -1,10 +1,7 @@
 package com.lxf.utils.documentInspect;
 
-import com.lxf.utils.docutils.Read_docx_doc_wps;
-import com.lxf.utils.docutils.Read_ppt_pptx_dps;
-import com.lxf.utils.docutils.Read_xls_xlsx_et;
 import com.lxf.domain.ResultDomain;
-import com.lxf.utils.docutils.ReadPdf;
+import com.lxf.utils.docutils.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,12 +24,28 @@ public class DocumentInspect {
 
 
     public static void main(String[] args) throws IOException {
-        List<String> keyWordList = new ArrayList<String>();
+        List<String> keyWordList = new ArrayList<>();
         keyWordList.add("电饭锅");
         keyWordList.add("地方");
         keyWordList.add("546");
         keyWordList.add("sdf");
-        System.out.println(documentInspect(keyWordList).toString());// new Date()为获取当前系统时间
+//        String filePath = "D:\\LXF\\Test\\kong.ppt";
+        String filePath = "D:\\LXF\\Test\\To\\xlsToet.et";
+//        String filePath = "D:\\LXF\\Test\\测试113.xls";
+//        String filePath = "D:\\LXF\\Test\\测试114.xlsx";
+
+//        String filePath = "D:\\LXF\\Test\\111p.ppt";
+//        String filePath = "D:\\LXF\\Test\\111x.pptx";
+//        String filePath = "D:\\LXF\\Test\\111d.dps";
+
+//        String filePath = "D:\\LXF\\Test\\pdf_Demo.pdf";
+
+//        String filePath = "D:\\LXF\\Test\\doctest.doc";
+//        String filePath = "D:\\LXF\\Test\\111.docx";
+//        String filePath = "D:\\LXF\\Test\\测试111.wps"
+//        String filePath = "D:\\LXF\\Test\\wpstest.wps";
+//        String filePath = "D:\\LXF\\Test\\111.txt";
+        System.out.println(documentInspect(keyWordList, filePath));// new Date()为获取当前系统时间
     }
 
     /**
@@ -42,23 +55,11 @@ public class DocumentInspect {
      * @return ResultDomain: code-状态码 | msg-消息
      * @throws IOException IO异常
      */
-    public static ResultDomain documentInspect(List<String> keyWordList) throws IOException {
+    public static ResultDomain documentInspect(List<String> keyWordList, String filePath) throws IOException {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
         ResultDomain resultDomain = new ResultDomain(ILLEGAL_CODE, NO_SUPPORT_MSG);
-        String filePath = "D:\\LXF\\Test\\测试112.et";
-//        String filePath = "D:\\LXF\\Test\\111.ppt";
-//        String filePath = "D:\\LXF\\Test\\111.pptx";
-//        String filePath = "D:\\LXF\\Test\\111.dps";
-//        String filePath = "D:\\LXF\\Test\\wpstest.wps";
-//        String filePath = "D:\\LXF\\Test\\pdf_Demo.pdf";
-//        String filePath = "D:\\LXF\\Test\\222.pptx";
-//        String filePath = "D:\\LXF\\Test\\111.docx";
-//        String filePath = "D:\\LXF\\Test\\111.txt";
-//        String filePath = "D:\\LXF\\Test\\doctest.doc";
-//        String filePath = "D:\\LXF\\Test\\测试111.wps";
-
         System.out.println("****************************文件检测开始****************************");
-        //1.先检测文件是否存在
+        //1.先检测文件是否存在，且是否为一个文件而非文件夹
         File f = new File(filePath);
         if (f.exists() && f.isFile()) {
             // 2. 再检测文件的真实性
@@ -93,8 +94,12 @@ public class DocumentInspect {
                         break;
                     case "dps":
                         isDps(filePath, keyWordList, keyCount, resultDomain);
+                        break;
                     case "pptx":
                         isPptx(filePath, keyWordList, keyCount, resultDomain);
+                        break;
+                    case "txt":
+
                         break;
                     default:
                         resultDomain.setCode(ILLEGAL_CODE);
@@ -122,12 +127,18 @@ public class DocumentInspect {
      * @param keyWordList  关键字集合
      * @param keyCount     关键字统计
      * @param resultDomain 返回结果
-     * @throws IOException IO异常
      */
-    public static void isDoc(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) throws IOException {
+    public static void isDoc(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) {
         String docStr = Read_docx_doc_wps.getDocStr(filePath);
+        if (docStr.equals("noDoc")) {
+            String msg = "该文件经过检测非 DOC/WPS 文件";
+            resultDomain.setCode(403);
+            resultDomain.setMsg(msg);
+            System.out.println(msg);
+            isXxx(keyWordList, keyCount, resultDomain, docStr, msg);
+        }
         String msg = FileTypeInspect.getFileName(filePath) + " 内容为空";
-        isXxx(filePath, keyWordList, keyCount, resultDomain, docStr, msg);
+        isXxx(keyWordList, keyCount, resultDomain, docStr, msg);
     }
 
     /**
@@ -137,12 +148,18 @@ public class DocumentInspect {
      * @param keyWordList  关键字集合
      * @param keyCount     关键字统计
      * @param resultDomain 返回结果
-     * @throws IOException IO异常
      */
-    public static void isDocx(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) throws IOException {
+    public static void isDocx(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) {
         String docxStr = Read_docx_doc_wps.getDocxStr(filePath);
+        if (docxStr.equals("noDocx")) {
+            String msg = "该文件经过检测非 DOCX 文件";
+            resultDomain.setCode(403);
+            resultDomain.setMsg(msg);
+            System.out.println(msg);
+            isXxx(keyWordList, keyCount, resultDomain, docxStr, msg);
+        }
         String msg = FileTypeInspect.getFileName(filePath) + " 内容为空";
-        isXxx(filePath, keyWordList, keyCount, resultDomain, docxStr, msg);
+        isXxx(keyWordList, keyCount, resultDomain, docxStr, msg);
 
     }
 
@@ -153,12 +170,18 @@ public class DocumentInspect {
      * @param keyWordList  关键字集合
      * @param keyCount     关键字统计
      * @param resultDomain 返回结果
-     * @throws IOException IO异常
      */
-    public static void is_xls_xlsx_et(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) throws IOException {
+    public static void is_xls_xlsx_et(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) {
         String xls_xlsx_et_Str = Read_xls_xlsx_et.getAllExcelStr(filePath);
+        if (xls_xlsx_et_Str.equals("noXls")) {
+            String msg = "该文件经过检测非 xls/xlsx/et 文件";
+            resultDomain.setCode(403);
+            resultDomain.setMsg(msg);
+            System.out.println(msg);
+            isXxx(keyWordList, keyCount, resultDomain, xls_xlsx_et_Str, msg);
+        }
         String msg = FileTypeInspect.getFileName(filePath) + " 内容为空";
-        isXxx(filePath, keyWordList, keyCount, resultDomain, xls_xlsx_et_Str, msg);
+        isXxx(keyWordList, keyCount, resultDomain, xls_xlsx_et_Str, msg);
     }
 
     /**
@@ -168,12 +191,18 @@ public class DocumentInspect {
      * @param keyWordList  关键字集合
      * @param keyCount     关键字统计
      * @param resultDomain 返回结果
-     * @throws IOException IO异常
      */
-    public static void isPpt(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) throws IOException {
+    public static void isPpt(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) {
         String ppt_Str = Read_ppt_pptx_dps.getPptStr(filePath);
+        if (ppt_Str.equals("noPpt")) {
+            String msg = "该文件经过检测非 PPT/DPS 文件";
+            resultDomain.setCode(403);
+            resultDomain.setMsg(msg);
+            System.out.println(msg);
+            isXxx(keyWordList, keyCount, resultDomain, ppt_Str, msg);
+        }
         String msg = FileTypeInspect.getFileName(filePath) + " 内容为空";
-        isXxx(filePath, keyWordList, keyCount, resultDomain, ppt_Str, msg);
+        isXxx(keyWordList, keyCount, resultDomain, ppt_Str, msg);
     }
 
     /**
@@ -184,10 +213,17 @@ public class DocumentInspect {
      * @param keyCount     关键字统计
      * @param resultDomain 返回结果
      */
-    public static void isPptx(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) throws IOException {
+    public static void isPptx(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) {
         String pptx_Str = Read_ppt_pptx_dps.getPptxStr(filePath);
+        if (pptx_Str.equals("noPptx")) {
+            String msg = "该文件经过检测非 PPTX 文件";
+            resultDomain.setCode(403);
+            resultDomain.setMsg(msg);
+            System.out.println(msg);
+            isXxx(keyWordList, keyCount, resultDomain, pptx_Str, msg);
+        }
         String msg = FileTypeInspect.getFileName(filePath) + " 内容为空";
-        isXxx(filePath, keyWordList, keyCount, resultDomain, pptx_Str, msg);
+        isXxx(keyWordList, keyCount, resultDomain, pptx_Str, msg);
     }
 
     /**
@@ -201,8 +237,15 @@ public class DocumentInspect {
      */
     public static void isWps(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) throws IOException {
         String wps_Str = Read_docx_doc_wps.getWpsStr(filePath);
+        if (wps_Str.equals("noWps")) {
+            String msg = "该文件经过检测非 WPS 文件";
+            resultDomain.setCode(403);
+            resultDomain.setMsg(msg);
+            System.out.println(msg);
+            isXxx(keyWordList, keyCount, resultDomain, wps_Str, msg);
+        }
         String msg = FileTypeInspect.getFileName(filePath) + " 内容为空";
-        isXxx(filePath, keyWordList, keyCount, resultDomain, wps_Str, msg);
+        isXxx(keyWordList, keyCount, resultDomain, wps_Str, msg);
     }
 
     /**
@@ -212,12 +255,18 @@ public class DocumentInspect {
      * @param keyWordList  关键字集合
      * @param keyCount     关键字统计
      * @param resultDomain 返回结果
-     * @throws IOException IO异常
      */
-    public static void isDps(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) throws IOException {
+    public static void isDps(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) {
         String dps_Str = Read_ppt_pptx_dps.getDpsStr(filePath);
+        if (dps_Str.equals("noDps")) {
+            String msg = "该文件经过检测非 DPS 文件";
+            resultDomain.setCode(403);
+            resultDomain.setMsg(msg);
+            System.out.println(msg);
+            isXxx(keyWordList, keyCount, resultDomain, dps_Str, msg);
+        }
         String msg = FileTypeInspect.getFileName(filePath) + " 内容为空";
-        isXxx(filePath, keyWordList, keyCount, resultDomain, dps_Str, msg);
+        isXxx(keyWordList, keyCount, resultDomain, dps_Str, msg);
     }
 
     /**
@@ -227,29 +276,35 @@ public class DocumentInspect {
      * @param keyWordList  关键字集合
      * @param keyCount     关键字统计
      * @param resultDomain 返回结果
-     * @throws IOException IO异常
      */
-    public static void isPdf(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) throws IOException {
+    public static void isPdf(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain) {
         String pdf_Str = ReadPdf.getPdfStr(filePath);
+        if (pdf_Str.equals("noPdf")) {
+            String msg = "该文件经过检测非 PDF 文件";
+            resultDomain.setCode(403);
+            resultDomain.setMsg(msg);
+            System.out.println(msg);
+            isXxx(keyWordList, keyCount, resultDomain, pdf_Str, msg);
+        }
         String msg = FileTypeInspect.getFileName(filePath) + " 内容为空";
-        isXxx(filePath, keyWordList, keyCount, resultDomain, pdf_Str, msg);
+        isXxx(keyWordList, keyCount, resultDomain, pdf_Str, msg);
     }
 
     /**
      * 文件检测通用代码  复用
      *
-     * @param filePath     文件路径
      * @param keyWordList  关键字集合
      * @param keyCount     关键字统计
      * @param resultDomain 返回结果
      * @param xxxStr       具体的文件字符串
      * @param msg          输出的消息
      */
-    public static void isXxx(String filePath, List<String> keyWordList, int keyCount, ResultDomain resultDomain, String xxxStr, String msg) {
+    public static void isXxx(List<String> keyWordList, int keyCount, ResultDomain resultDomain, String xxxStr, String msg) {
         if (!xxxStr.equals("")) {
             is_Document_inspect(keyWordList, keyCount, resultDomain, xxxStr);
         } else {
             System.out.println(msg);
+            is_Document_inspect(keyWordList, keyCount, resultDomain, xxxStr);
         }
     }
 
@@ -262,6 +317,17 @@ public class DocumentInspect {
      * @param xx_Str       某文档字符串
      */
     public static void is_Document_inspect(List<String> keyWordList, int keyCount, ResultDomain resultDomain, String xx_Str) {
+        switch (xx_Str) {
+            case "noDoc":
+            case "noDocx":
+            case "noXls":
+            case "noXlsx":
+            case "noPpt":
+            case "noPptx":
+                return;
+            default:
+                break;
+        }
         for (String keyWord : keyWordList) {
             if (FileTypeInspect.KeywordInspect(xx_Str, keyWord)) {
                 System.out.println("检测到关键字==>" + keyWord);
@@ -270,7 +336,6 @@ public class DocumentInspect {
         }
         if (keyCount == 0) {
             System.out.println(RIGHTFUL_MSG);
-
             resultDomain.setCode(RIGHTFUL_CODE);
             resultDomain.setMsg(RIGHTFUL_MSG);
         } else {

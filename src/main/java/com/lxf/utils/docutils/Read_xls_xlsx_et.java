@@ -2,8 +2,9 @@ package com.lxf.utils.docutils;
 
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.exceptions.POIException;
+import com.lxf.utils.docutils.Read_ppt_pptx_dps;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.PictureData;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Read_xls_xlsx_et {
-    public static void main(String[] args) throws IOException {
+/*    public static void main(String[] args) throws IOException {
         String path = "D:\\LXF\\Test\\测试114.xlsx";
         String path2 = "D:\\LXF\\Test\\测试113.xls";
         String path3 = "D:\\LXF\\Test\\测试112.et";
@@ -23,7 +24,7 @@ public class Read_xls_xlsx_et {
             System.out.println(Image);
         }
 
-    }
+    }*/
 
     /**
      * 获取xls,xlsx,et文件（表格样式）中的内容,并转换为字符串
@@ -33,22 +34,27 @@ public class Read_xls_xlsx_et {
      */
     public static String getAllExcelStr(String filePath) {
         StringBuilder excelStr = new StringBuilder();
+        try {
+            if (!filePath.equals("")) {
+                ExcelReader reader = ExcelUtil.getReader(filePath);
 
-        if (!filePath.equals("")) {
-            ExcelReader reader = ExcelUtil.getReader(filePath);
-
-            List<List<Object>> readAll = reader.read();
-            for (List list : readAll) {
-                for (Object o : list) {
-                    excelStr.append(o);
+                List<List<Object>> readAll = reader.read();
+                for (List list : readAll) {
+                    for (Object o : list) {
+                        excelStr.append(o);
 //                    System.out.println(o);
+                    }
                 }
+                reader.close();
+                System.gc();
+            } else {
+                System.out.println("路径不正确，找不到Excel文件");
             }
-            reader.close();
-        } else {
-            System.out.println("路径不正确，找不到Excel文件");
+        } catch (POIException e) {
+            e.printStackTrace();
+            return "noXls";
         }
-//        System.out.println(excelStr.toString());
+        //        System.out.println(excelStr.toString());
         return excelStr.toString();
     }
 
@@ -57,31 +63,35 @@ public class Read_xls_xlsx_et {
      *
      * @param filePath 文件路径
      * @return List 图片路径集合
-     * @throws FileNotFoundException 找不到文件异常
-     * @throws IOException           IO异常
      */
-    public static List<String> getAllExcelImages(String filePath) throws IOException {
+    public static List<String> getAllExcelImages(String filePath) {
         List<String> imagesList = new ArrayList<>();
         File file = new File(filePath);
-        if (file.exists() && file.isFile()) {
-            Workbook workbook = null;
-            InputStream is = new FileInputStream(file);
-            if (filePath.endsWith(".xls") || filePath.endsWith(".et")) {
-                workbook = new HSSFWorkbook(is);
-            } else if (filePath.endsWith(".xlsx")) {
-                workbook = new XSSFWorkbook(is);
-            }
-            if (workbook != null) {
-                // 图片内容
-                List<?> pictures = workbook.getAllPictures();
-                //获取去除后缀的文件路径
-                Read_ppt_pptx_dps.getImagePath(filePath, imagesList, pictures);
+        try {
+            if (file.exists() && file.isFile()) {
+                Workbook workbook = null;
+                InputStream is = new FileInputStream(file);
+                if (filePath.endsWith(".xls") || filePath.endsWith(".et")) {
+                    workbook = new HSSFWorkbook(is);
+                } else if (filePath.endsWith(".xlsx")) {
+                    workbook = new XSSFWorkbook(is);
+                }
+                if (workbook != null) {
+                    // 图片内容
+                    List<?> pictures = workbook.getAllPictures();
+                    //获取去除后缀的文件路径
+                    Read_ppt_pptx_dps.getImagePath(filePath, imagesList, pictures);
+                } else {
+                    System.out.println("Workbook==null,文件格式不正确");
+                    return null;
+                }
             } else {
-                System.out.println("Workbook==null,文件格式不正确");
-                return null;
+                System.out.println("xls/xlsx/et 文件不存在");
             }
-        } else {
-            System.out.println("xls/xlsx/et 文件不存在");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            System.gc();
         }
         return imagesList;
     }

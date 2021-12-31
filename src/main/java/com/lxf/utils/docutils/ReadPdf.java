@@ -10,13 +10,13 @@ import java.io.IOException;
 
 public class ReadPdf {
     // 测试
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         String inputPath = "D:/LXF/PdfTest/";
         String inputFileName = "pdf_Demo.pdf";
         String inputPath_fileName = inputPath + inputFileName;
 
         System.out.println(getPdfStr(inputPath_fileName));
-    }
+    }*/
 
     /**
      * 根据PDF文件路径 获取PDF内文字信息
@@ -34,6 +34,7 @@ public class ReadPdf {
                     stripper.setSortByPosition(true);
                     PDFTextStripper tStripper = new PDFTextStripper();
                     pdfFileInText.append(tStripper.getText(document));
+
 /*                  String[] lines = pdfFileInText.split("\\r?\\n");
                     FileWriter fw = new FileWriter(outputPath);
                     for (String line : lines) {
@@ -47,6 +48,8 @@ public class ReadPdf {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                System.gc();
             }
         } else {
             System.out.println("PDF文件不存在,检查文件路径");

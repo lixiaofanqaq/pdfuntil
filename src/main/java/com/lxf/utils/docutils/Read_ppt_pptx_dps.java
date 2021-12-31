@@ -4,6 +4,7 @@ import org.apache.poi.hslf.usermodel.HSLFShape;
 import org.apache.poi.hslf.usermodel.HSLFSlide;
 import org.apache.poi.hslf.usermodel.HSLFSlideShow;
 import org.apache.poi.hslf.usermodel.HSLFTextParagraph;
+import org.apache.poi.ooxml.POIXMLException;
 import org.apache.poi.sl.extractor.SlideShowExtractor;
 import org.apache.poi.sl.usermodel.PictureData;
 import org.apache.poi.sl.usermodel.SlideShow;
@@ -19,10 +20,9 @@ import org.openxmlformats.schemas.presentationml.x2006.main.CTSlide;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class Read_ppt_pptx_dps {
-    public static void main(String[] args) throws IOException {
+/*    public static void main(String[] args) throws IOException {
         String filePath = "D:\\LXF\\Test\\111p.ppt";
         String filePath2 = "D:\\LXF\\Test\\111x.pptx";
         String filePath3 = "D:\\LXF\\Test\\111d.dps";
@@ -33,8 +33,7 @@ public class Read_ppt_pptx_dps {
         for (String image : getAllImages(filePath4)) {
             System.out.println(image);
         }
-
-    }
+    }*/
 
     /**
      * 识别PPT中文字与表格，图片暂时识别不到，会跳过。
@@ -45,9 +44,8 @@ public class Read_ppt_pptx_dps {
     public static String getPptStr(String filePath) {
         File file = new File(filePath);
         StringBuilder pptStr = new StringBuilder();
-
-        if (file.exists() && file.isFile()) {
-            try {
+        try {
+            if (file.exists() && file.isFile()) {
                 FileInputStream fis = new FileInputStream(file);
                 HSLFSlideShow hslfSlideShow = new HSLFSlideShow(fis);
                 SlideShowExtractor<HSLFShape, HSLFTextParagraph> slideShowExtractor = new SlideShowExtractor<>(hslfSlideShow);
@@ -56,15 +54,20 @@ public class Read_ppt_pptx_dps {
                 for (HSLFSlide slide : slides) {
                     pptStr.append(slideShowExtractor.getText(slide));
                 }
-                fis.close();
                 hslfSlideShow.close();
                 slideShowExtractor.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+                fis.close();
 //            System.out.println(pptStr.toString());
-        } else {
-            System.out.println("PPT 文件内容为空");
+            } else {
+                System.out.println("PPT 文件内容为空");
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return "noPpt";
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            System.gc();
         }
         return pptStr.toString();
     }
@@ -78,9 +81,8 @@ public class Read_ppt_pptx_dps {
     public static String getPptxStr(String filePath) {
         File file = new File(filePath);
         StringBuilder pptxStr = new StringBuilder();
-
-        if (file.exists() && file.isFile()) {
-            try {
+        try {
+            if (file.exists() && file.isFile()) {
                 FileInputStream fis = new FileInputStream(file);
                 XMLSlideShow xmlSlideShow = new XMLSlideShow(fis);
                 // 获得每一张幻灯片
@@ -110,12 +112,17 @@ public class Read_ppt_pptx_dps {
                 }
                 fis.close();
                 xmlSlideShow.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
 //            System.out.println(pptxStr.toString());
-        } else {
-            System.out.println("PPTX 文件内容为空");
+            } else {
+                System.out.println("PPTX 文件内容为空");
+            }
+        } catch (POIXMLException e) {
+            e.printStackTrace();
+            return "noPptx";
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            System.gc();
         }
         return pptxStr.toString();
     }
@@ -142,23 +149,33 @@ public class Read_ppt_pptx_dps {
         File file = new File(filePath);
         InputStream is = new FileInputStream(file);
         SlideShow slideShow = null;
-        if (file.exists() && file.isFile()) {
-            if (filePath.endsWith(".ppt") || filePath.endsWith(".dps")) {
-                slideShow = new HSLFSlideShow(is);
-            } else if (filePath.endsWith(".pptx")) {
-                slideShow = new XMLSlideShow(is);
-            }
-            if (slideShow != null) {
-                // 图片内容
-                List<?> pictures = slideShow.getPictureData();
-                //获取去除后缀的文件路径
-                getImagePath(filePath, imageList, pictures);
+        try {
+            if (file.exists() && file.isFile()) {
+                if (filePath.endsWith(".ppt") || filePath.endsWith(".dps")) {
+                    slideShow = new HSLFSlideShow(is);
+                } else if (filePath.endsWith(".pptx")) {
+                    slideShow = new XMLSlideShow(is);
+                }
+                if (slideShow != null) {
+                    // 图片内容
+                    List<?> pictures = slideShow.getPictureData();
+                    //获取去除后缀的文件路径
+                    getImagePath(filePath, imageList, pictures);
+                } else {
+                    System.out.println("null,文件格式不支持");
+                    return null;
+                }
             } else {
-                System.out.println("null,文件格式不支持");
-                return null;
+                System.out.println("ppt/pptx/dps 文件不存在");
             }
-        } else {
-            System.out.println("ppt/pptx/dps 文件不存在");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (slideShow != null) {
+                slideShow.close();
+            }
+            is.close();
+            System.gc();
         }
         return imageList;
     }
@@ -169,33 +186,33 @@ public class Read_ppt_pptx_dps {
      * @param filePath  文件路径
      * @param imageList 图片路径集合
      * @param pictures  图片
-     * @throws IOException IO异常
      */
-    public static void getImagePath(String filePath, List<String> imageList, List<?> pictures) throws IOException {
+    public static void getImagePath(String filePath, List<String> imageList, List<?> pictures) {
         String fileDirectory = filePath.substring(0, filePath.lastIndexOf("."));
         File imagesFile = new File(fileDirectory);
         int imageCount = 0;
         String imagePathName = "";
-        if (pictures != null && !pictures.isEmpty()) {
-            if (!imagesFile.exists()) {
-                //创建文件夹
-                imagesFile.mkdir();
+        try {
+            if (pictures != null && !pictures.isEmpty()) {
+                if (!imagesFile.exists()) {
+                    //创建文件夹
+                    imagesFile.mkdir();
+                }
+                for (Object object : pictures) {
+                    imageCount++;
+                    PictureData picture = (PictureData) object;
+                    byte[] data = picture.getData();
+                    imagePathName = fileDirectory + "\\image" + imageCount + ".png";
+                    FileOutputStream fos = new FileOutputStream(new File(imagePathName));
+                    fos.write(data);
+                    fos.close();
+                    imageList.add(imagePathName);
+                }
             }
-            for (Object object : pictures) {
-                imageCount++;
-
-                PictureData picture = (PictureData) object;
-                byte[] data = picture.getData();
-
-                imagePathName = fileDirectory + "\\image" + imageCount + ".png";
-
-                FileOutputStream fos = new FileOutputStream(new File(imagePathName));
-
-                fos.write(data);
-                fos.close();
-
-                imageList.add(imagePathName);
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            System.gc();
         }
     }
 

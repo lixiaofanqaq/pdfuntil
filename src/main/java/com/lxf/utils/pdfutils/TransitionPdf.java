@@ -66,7 +66,7 @@ public class TransitionPdf {
                     // 方式1,第二个参数是设置缩放比(即像素)
                     // BufferedImage image = renderer.renderImageWithDPI(i, 296);
                     // 方式2,第二个参数是设置缩放比(即像素)
-                    BufferedImage image = renderer.renderImage(i, 3.5f);  //第二个参数越大生成图片分辨率越高，转换时间也就越长
+                    BufferedImage image = renderer.renderImage(i, 2.5f);  //第二个参数越大生成图片分辨率越高，转换时间也就越长
                     imagePath = fileDirectory + "/page_" + (i + 1) + ".png";
                     ImageIO.write(image, "PNG", new File(imagePath));
                     list.add(imagePath);
@@ -118,6 +118,7 @@ public class TransitionPdf {
 
     /**
      * 识别图片信息 使用中文训练裤
+     *
      * @param srImage 图片
      * @return 文字信息
      */
@@ -147,7 +148,7 @@ public class TransitionPdf {
     /**
      * 判断 List<String> 集合里的元素是否包含某个关键字
      *
-     * @param list String集合
+     * @param list    String集合
      * @param keyword 关键字
      * @return true false
      */
@@ -161,6 +162,7 @@ public class TransitionPdf {
         }
         return keywordCount == 0;
     }
+
 }
 
 

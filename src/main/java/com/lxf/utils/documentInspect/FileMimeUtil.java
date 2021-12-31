@@ -16,12 +16,8 @@ public class FileMimeUtil {
     public static void main(String[] args) {
         try {
 //            getMimeType1();
-            getMimeType1("D:\\LXF\\documentTest\\zzz.doc");
-            getMimeType1("D:\\LXF\\documentTest\\zzz.xls");
-            getMimeType1("D:\\LXF\\documentTest\\zzz.et");
-            getMimeType1("D:\\LXF\\documentTest\\zzz.wps");
             getMimeType1("D:\\LXF\\documentTest\\zzz.dps");
-            getMimeType1("D:\\LXF\\documentTest\\zzz.ppt");
+            getMimeType1("D:\\LXF\\Test\\docxToxlsx.xlsx");
         } catch (Exception e) {
             e.printStackTrace();
         }

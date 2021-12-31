@@ -1,5 +1,7 @@
 package com.lxf.utils.documentInspect;
 
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -106,7 +108,7 @@ public class FileTypeInspect {
                 case "xlsx":
                 case "pptx":
                     result = docx_xlsx_pptx_isPass(filePath);
-                    System.out.println("文件真实性检测==>" + (result ? "合格" : "不合格"));
+                    System.out.println("文件真实性初步检测==>" + (result ? "合格" : "不合格"));
                     break;
                 case "doc":
                 case "xls":
@@ -115,14 +117,14 @@ public class FileTypeInspect {
                 case "dps":
                 case "ppt":
                     result = doc_xls_et_wps_dps_ppt_isPass(filePath);
-                    System.out.println("文件真实性检测==>" + (result ? "合格" : "不合格"));
+                    System.out.println("文件真实性初步检测==>" + (result ? "合格" : "不合格"));
                     break;
                 case "pdf":
                 case "jpg":
                 case "png":
                 case "tif":
                     result = other_isPass(filePath);
-                    System.out.println("文件真实性检测==>" + (result ? "合格" : "不合格"));
+                    System.out.println("文件真实性初步检测==>" + (result ? "合格" : "不合格"));
                     break;
                 default:
                     result = true;
@@ -133,17 +135,6 @@ public class FileTypeInspect {
             System.out.println("文件不存在,请检查路径是否正确!");
         }
         return result;
-    }
-
-    /**
-     * 判断 pdf jpg  png  tif 文件类型是否真实
-     *
-     * @param filePath 文件路径
-     * @return true:真实  false:不真实
-     */
-    public static boolean other_isPass(String filePath) {
-        File f = new File(filePath);
-        return getFileSuffix(getFileName(filePath)).equals(getTypeByFile(f));
     }
 
     /**
@@ -163,8 +154,6 @@ public class FileTypeInspect {
                 return true;
             }
             is.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -188,8 +177,6 @@ public class FileTypeInspect {
                 return true;
             }
             is.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -234,6 +221,17 @@ public class FileTypeInspect {
     }
 
     /**
+     * 判断 pdf jpg  png  tif 文件类型是否真实
+     *
+     * @param filePath 文件路径
+     * @return true:真实  false:不真实
+     */
+    public static boolean other_isPass(String filePath) {
+        File f = new File(filePath);
+        return getFileSuffix(getFileName(filePath)).equals(getTypeByFile(f));
+    }
+
+    /**
      * 获取图片文件实际类型,若不是图片则返回null
      *
      * @param file 文件
@@ -272,8 +270,6 @@ public class FileTypeInspect {
             int width = buffReader.getWidth();
             int height = buffReader.getHeight();
             flag = width != 0 && height != 0;
-        } catch (IOException e) {
-            flag = false;
         } catch (Exception e) {
             flag = false;
         }
@@ -294,8 +290,6 @@ public class FileTypeInspect {
             is.read(b);
             filetype = getFileTypeByStream(b);
             is.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
