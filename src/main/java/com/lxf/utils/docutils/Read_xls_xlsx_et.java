@@ -46,13 +46,14 @@ public class Read_xls_xlsx_et {
                     }
                 }
                 reader.close();
-                System.gc();
             } else {
                 System.out.println("路径不正确，找不到Excel文件");
             }
-        } catch (POIException e) {
+        } catch (IllegalArgumentException | POIException e) {
             e.printStackTrace();
             return "noXls";
+        } finally {
+            System.gc();
         }
         //        System.out.println(excelStr.toString());
         return excelStr.toString();

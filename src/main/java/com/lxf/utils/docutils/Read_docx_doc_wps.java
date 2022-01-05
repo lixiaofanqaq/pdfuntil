@@ -1,5 +1,6 @@
 package com.lxf.utils.docutils;
 
+import org.apache.poi.EmptyFileException;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.hwpf.model.PicturesTable;
@@ -98,7 +99,12 @@ public class Read_docx_doc_wps {
             }
         } catch (POIXMLException e) {
             e.printStackTrace();
+            System.out.println("[提示]:这不是一个docx文件");
             return "noDocx";
+        } catch (EmptyFileException e) {
+            e.printStackTrace();
+            System.out.println("[提示]:这是一个空的docx文件");
+            return "emptyDocx";
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

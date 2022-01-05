@@ -1,5 +1,7 @@
 package com.lxf.utils.docutils;
 
+import cn.hutool.poi.exceptions.POIException;
+import org.apache.poi.EmptyFileException;
 import org.apache.poi.hslf.usermodel.HSLFShape;
 import org.apache.poi.hslf.usermodel.HSLFSlide;
 import org.apache.poi.hslf.usermodel.HSLFSlideShow;
@@ -61,7 +63,7 @@ public class Read_ppt_pptx_dps {
             } else {
                 System.out.println("PPT 文件内容为空");
             }
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | POIException | FileNotFoundException e) {
             e.printStackTrace();
             return "noPpt";
         } catch (IOException e) {
@@ -114,10 +116,15 @@ public class Read_ppt_pptx_dps {
                 xmlSlideShow.close();
 //            System.out.println(pptxStr.toString());
             } else {
-                System.out.println("PPTX 文件内容为空");
+                System.out.println("[提示]:PPTX 文件内容为空");
             }
+        } catch (EmptyFileException e) {
+            e.printStackTrace();
+            System.out.println("[提示]:这是一个空的pptx文件");
+            return "emptyPptx";
         } catch (POIXMLException e) {
             e.printStackTrace();
+            System.out.println("[提示]:这不是pptx文件");
             return "noPptx";
         } catch (IOException e) {
             e.printStackTrace();

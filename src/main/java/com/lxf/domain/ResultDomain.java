@@ -27,7 +27,7 @@ public class ResultDomain {
 
     @Override
     public String toString() {
-        return "ResultDomain:{" +
+        return "[ResultDomain]:{" +
                 "code=" + code +
                 ", msg='" + msg + '\'' +
                 '}';

@@ -1,11 +1,8 @@
 package com.lxf.utils.documentInspect;
 
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -108,7 +105,7 @@ public class FileTypeInspect {
                 case "xlsx":
                 case "pptx":
                     result = docx_xlsx_pptx_isPass(filePath);
-                    System.out.println("文件真实性初步检测==>" + (result ? "合格" : "不合格"));
+                    System.out.println("[文件真实性初步检测]:" + (result ? "合格" : "不合格"));
                     break;
                 case "doc":
                 case "xls":
@@ -117,14 +114,14 @@ public class FileTypeInspect {
                 case "dps":
                 case "ppt":
                     result = doc_xls_et_wps_dps_ppt_isPass(filePath);
-                    System.out.println("文件真实性初步检测==>" + (result ? "合格" : "不合格"));
+                    System.out.println("[文件真实性初步检测]:" + (result ? "合格" : "不合格"));
                     break;
                 case "pdf":
                 case "jpg":
                 case "png":
                 case "tif":
                     result = other_isPass(filePath);
-                    System.out.println("文件真实性初步检测==>" + (result ? "合格" : "不合格"));
+                    System.out.println("[文件真实性初步检测]:" + (result ? "合格" : "不合格"));
                     break;
                 default:
                     result = true;
@@ -148,9 +145,10 @@ public class FileTypeInspect {
         byte[] b = new byte[50];
         try {
             InputStream is = new FileInputStream(file);
+            System.out.println("[DOCX/XLSX/PPTX 文件大小]:" + file.length());
             is.read(b);
             //如果文件头和获取的 docx,xlsx,pptx这些文件头一样,就为真实文件
-            if ("504B0304".equals(getFileTypeValue(b))) {
+            if ("504B0304".equals(getFileTypeValue(b)) || file.length() == 0) {
                 return true;
             }
             is.close();
